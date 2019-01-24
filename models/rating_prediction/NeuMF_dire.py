@@ -219,6 +219,7 @@ class NeuMF_dire():
         dire_pos_random = list(np.array(train_data[3])[idxs])
         dire_neg_random = list(np.array(train_data[4])[idxs])
         # train
+        t2 = time.time()
         loss_per_epoch, error_per_epoch = 0, 0
         for i in range(total_batch):
             start_time = time.time()
@@ -234,7 +235,6 @@ class NeuMF_dire():
             error_per_epoch += error
         error_per_epoch /= total_batch
         loss_per_epoch /= total_batch
-        t2 = time.time()
         print('loss= %.4f\t[%.1f s]' % (loss_per_epoch, time.time() - t2))
         if i % self.display_step == 0:
                 print("Index: %04d; cost= %.9f" % (i + 1, np.mean(loss)) + "\n")
@@ -254,8 +254,6 @@ class NeuMF_dire():
         self.sess = tf.Session()
         init = tf.global_variables_initializer()
         self.sess.run(init)
-        t1 = time.time()
-        self.test(test_data)
         for epoch in range(self.epochs):
             print("Epoch: %04d;" % (epoch))
             if (epoch) % self.T == 0:
