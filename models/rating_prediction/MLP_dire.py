@@ -36,7 +36,7 @@ class MLP_dire():
         self.batch_size = batch_size
         self.show_time = show_time
         self.display_step = display_step
-        self.keep_prob = args.keep_prob
+        self.keep_prob = np.array(eval(args.keep_prob))
         print("MF.")
 
     def build_core_model(self, user_indices, item_indices,dire_pos_indices,dire_neg_indices):
