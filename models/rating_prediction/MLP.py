@@ -172,13 +172,12 @@ class MLP():
                     print("one iteration: %s seconds." % (time.time() - start_time) + "\n")
 
     def test(self, test_data):
-        error = 0
-        error_mae = 0
-        for index in range(len(test_data[0])):
-            pred_rating_test = self.predict([test_data[0][index]], [test_data[1][index]])
-            error += (float(test_data[2][index]) - pred_rating_test) ** 2
-            error_mae += (np.abs(float(test_data[2][index]) - pred_rating_test))
-        print("RMSE:" + str(RMSE(error, len(test_data[0]))[0]) + "; MAE:" + str(MAE(error_mae, len(test_data[0]))[0]))
+        pred_rating_test = self.predict(test_data[0], test_data[1])
+        error = np.sum(np.power((np.array(test_data[2]) - np.array(pred_rating_test)),2))
+        error_mae = np.sum(np.abs(np.array(test_data[2]) - np.array(pred_rating_test)))
+        out_rmse = str(RMSE(error, len(test_data[0])))
+        out_mae= str(MAE(error_mae, len(test_data[0])))
+        print("RMSE:" + out_rmse + "; MAE:" + out_mae)
 
     def execute(self, train_data, test_data):
         self.sess = tf.Session()
@@ -197,4 +196,4 @@ class MLP():
         saver.save(self.sess, path)
 
     def predict(self, user_id, item_id):
-        return self.sess.run([self.output], feed_dict={self.user_indices : user_id, self.item_indices : item_id})[0]
+        return self.sess.run([self.output], feed_dict={self.user_indices : user_id, self.item_indices : item_id})

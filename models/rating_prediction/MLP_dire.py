@@ -218,4 +218,4 @@ class MLP_dire():
 
     def predict(self,user_id,item_id,dire_pos,dire_neg):
         return self.sess.run([self.output], feed_dict={self.user_indices : user_id, self.item_indices : item_id,self.dire_pos_indices : dire_pos,
-                                                       self.dire_neg_indices : dire_neg})[0]
+                                                       self.dire_neg_indices : dire_neg})
