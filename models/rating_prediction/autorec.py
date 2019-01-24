@@ -2,14 +2,13 @@
 """Implementation of Item based AutoRec and user based AutoRec.
 Reference: Sedhain, Suvash, et al. "Autorec: Autoencoders meet collaborative filtering." Proceedings of the 24th International Conference on World Wide Web. ACM, 2015.
 """
-
+from __future__ import print_function
 import tensorflow as tf
 import time
 import numpy as np
 import scipy
 
 from utils.evaluation.RatingMetrics import *
-
 __author__ = "Shuai Zhang"
 __copyright__ = "Copyright 2018, The DeepRec Project"
 

@@ -8,6 +8,7 @@ import math
 import tensorflow as tf
 import time
 import numpy as np
+from __future__ import print_function
 
 def RMSE(error, num):
     return np.sqrt(error / num)

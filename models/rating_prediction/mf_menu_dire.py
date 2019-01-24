@@ -91,7 +91,7 @@ class MF_manu_dire_neg_pos():
             error += (float(test_data[2][i]) - pred_rating_test) ** 2
             error_mae += (np.abs(float(test_data[2][i]) - pred_rating_test))
         print("RMSE:" + str(RMSE(error, len(test_data[2]))[0]) + "; MAE:" + str(MAE(error_mae, len(test_data[2]))[0]))
-        #tf.Print(self.B_Dire, [self.B_Dire], "self.B_Dire: ", summarize=9)
+
     def execute(self, train_data, test_data):
 
         self.pred_rating += np.mean(train_data[2])

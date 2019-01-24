@@ -16,7 +16,7 @@ def RMSE(error, num):
 def MAE(error_mae, num):
     return (error_mae / num)
 
-class MLP_dire():
+class NeuMF_dire():
     def __init__(self, args, num_users, num_items,dire_num = 47,batch_size=128,
                  show_time=False, T=2, display_step=1000):
         self.num_users, self.num_items = num_users, num_items
@@ -36,8 +36,10 @@ class MLP_dire():
         self.batch_size = batch_size
         self.show_time = show_time
         self.display_step = display_step
+        self.dire_factors = args.dire_factors
+        self.num_factors = args.num_factors
         print("MF.")
-    def GMF_build_core_model(self, user_indices, item_indices,dire_pos_indices,dire_neg_indices):
+    def GMF_build_core_model(self, user_indices,item_indices,dire_pos_indices,dire_neg_indices):
 
         init_value = self.init_stddev
 
@@ -53,38 +55,50 @@ class MLP_dire():
         emb_item_bias = tf.concat([tf.ones((self.num_items, 1), dtype=tf.float32) * 0.1, emb_item], 1,
                                   name='item_embedding_bias')
 
+        emb_dire_pos = tf.Variable(tf.truncated_normal([self.dire_num, self.dire_factors],
+                                                   stddev=init_value / math.sqrt(float(self.dire_factors)), mean=0),
+                               name='dire_pos_embedding', dtype=tf.float32)
+
+        emb_dire_neg = tf.Variable(tf.truncated_normal([self.dire_num, self.dire_factors],
+                                                       stddev=init_value / math.sqrt(float(self.dire_factors)), mean=0),
+                                   name='dire_neg_embedding', dtype=tf.float32)
+
+        dire_pos_feature = tf.nn.embedding_lookup(emb_dire_pos, dire_pos_indices, name='dire_pos_feature')
+        dire_neg_feature = tf.nn.embedding_lookup(emb_dire_neg, dire_neg_indices, name='dire_neg_feature')
+
         user_feature = tf.nn.embedding_lookup(emb_user_bias, user_indices, name='user_feature')
         item_feature = tf.nn.embedding_lookup(emb_item_bias, item_indices, name='item_feature')
 
         product_vector = tf.multiply(user_feature, item_feature)
 
-        model_params = [emb_user, emb_item]
+        product_vector_concat = tf.concat([product_vector,dire_pos_feature,dire_neg_feature],1,name="product_vector_concat")
 
-        return product_vector, self.num_factors + 1, model_params
 
-    def build_core_model(self, user_indices, item_indices,dire_pos_indices,dire_neg_indices):
+        model_params = [emb_user, emb_item,emb_dire_pos,emb_dire_neg]
 
+        return product_vector_concat, self.num_factors + 1 + 2*self.dire_factors, model_params
+    def MLP_build_core_model(self,user_indices,item_indices,dire_pos_indices,dire_neg_indices):
         init_value = self.init_stddev
 
-        emb_user = tf.Variable(tf.truncated_normal([self.num_users, self.layers[0] // 4],
+        emb_user = tf.Variable(tf.truncated_normal([self.num_users, self.layers[0] // 2 - 1],
                                                    stddev=init_value / math.sqrt(float(self.layers[0] // 4)), mean=0),
                                name='user_embedding', dtype=tf.float32)
-        emb_item = tf.Variable(tf.truncated_normal([self.num_items, self.layers[0] // 4],
+        emb_item = tf.Variable(tf.truncated_normal([self.num_items, self.layers[0] // 2 - 1],
                                                    stddev=init_value / math.sqrt(float(self.layers[0] // 4)), mean=0),
                                name='item_embedding', dtype=tf.float32)
-        emb_dire_pos = tf.Variable(tf.truncated_normal([self.dire_num, self.layers[0] // 4],
-                                                   stddev=init_value / math.sqrt(float(self.layers[0] // 4)), mean=0),
-                               name='emb_dire_pos', dtype=tf.float32)
-        emb_dire_neg = tf.Variable(tf.truncated_normal([self.dire_num, self.layers[0] // 4],
-                                                   stddev=init_value / math.sqrt(float(self.layers[0] // 4)), mean=0),
-                               name='emb_dire_neg', dtype=tf.float32)
+        emb_dire_pos = tf.Variable(tf.truncated_normal([self.dire_num, 1],
+                                                       stddev=init_value / math.sqrt(float(4)), mean=0),
+                                   name='emb_dire_pos', dtype=tf.float32)
+        emb_dire_neg = tf.Variable(tf.truncated_normal([self.dire_num, 1],
+                                                       stddev=init_value / math.sqrt(float(4)), mean=0),
+                                   name='emb_dire_neg', dtype=tf.float32)
         user_feature = tf.nn.embedding_lookup(emb_user, user_indices, name='user_feature')
         item_feature = tf.nn.embedding_lookup(emb_item, item_indices, name='item_feature')
         pos_dire_feature = tf.nn.embedding_lookup(emb_dire_pos, dire_pos_indices, name='dire_pos_feature')
         neg_dire_feature = tf.nn.embedding_lookup(emb_dire_neg, dire_neg_indices, name='dire_neg_feature')
         hidden_layers = [tf.concat([user_feature, item_feature, pos_dire_feature, neg_dire_feature], 1)]
 
-        model_params = [emb_user, emb_item,emb_dire_pos,emb_dire_neg]
+        model_params = [emb_user, emb_item, emb_dire_pos, emb_dire_neg]
 
         for i in range(1, len(self.layers)):
             w_hidden_layer = tf.Variable(
@@ -99,6 +113,19 @@ class MLP_dire():
             model_params.append(b_hidden_layer)
 
         return hidden_layers[-1], self.layers[-1], model_params
+
+    def build_core_model(self, user_indices, item_indices, dire_pos_indices, dire_neg_indices):
+        vector_GMF, len_GMF, params_GMF = self.GMF_build_core_model(user_indices, item_indices, dire_pos_indices, dire_neg_indices)
+        vector_MLP, len_MLP, params_MLP = self.MLP_build_core_model(user_indices, item_indices, dire_pos_indices, dire_neg_indices)
+
+        model_vector = tf.concat([vector_GMF, vector_MLP], 1)
+        model_len = len_GMF + len_MLP
+
+        model_params = []
+        model_params.extend(params_GMF)
+        model_params.extend(params_MLP)
+
+        return model_vector, model_len, model_params
 
     def build_network(self, user_indices=None, item_indices=None,dire_pos_indices=None,dire_neg_indices=None):
 
@@ -189,8 +216,8 @@ class MLP_dire():
         user_random = list(np.array(train_data[0])[idxs])
         item_random = list(np.array(train_data[1])[idxs])
         rating_random = list(np.array(train_data[2])[idxs])
-        dire_pos_random = list(np.array(train_data[2])[idxs])
-        dire_neg_random = list(np.array(train_data[2])[idxs])
+        dire_pos_random = list(np.array(train_data[3])[idxs])
+        dire_neg_random = list(np.array(train_data[4])[idxs])
         # train
         loss_per_epoch, error_per_epoch = 0, 0
         for i in range(total_batch):

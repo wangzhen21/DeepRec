@@ -1,8 +1,8 @@
+from __future__ import print_function
 import argparse
 import tensorflow as tf
 import sys
 import os.path
-
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from models.rating_prediction.nnmf import NNMF
@@ -42,11 +42,8 @@ if __name__ == '__main__':
                                                              header=['user_id', 'item_id', 'rating', 'timestamp','dire_thistime','dire_allnum',\
                                                'dire_index','dire_name','pos','neg','scoreseq'],
                                                              test_size=0.1, sep="\t")
-
-
     config = tf.ConfigProto()
     config.gpu_options.allow_growth = True
-
     with tf.Session(config=config) as sess:
         model = None
         # Model selection

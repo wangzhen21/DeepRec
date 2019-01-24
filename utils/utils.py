@@ -39,9 +39,10 @@ def parse_args():
     parser.add_argument('--topk', type=int, default=10,
                         help='Evaluate the top k items.')
 
-    parser.add_argument('--layers', nargs='?', default='[128,64,32,16]',
+    parser.add_argument('--layers', nargs='?', default='[256,64,32,16]',
                         help="Size of each layer. Note that the first layer is the concatenation of user and item embeddings. So layers[0]/2 is the embedding size.")
     parser.add_argument('--reg_layers', nargs='?', default='[0,0,0,0]',
                         help="Regularization for each layer")
-
+    parser.add_argument('--dire_factors', type=int, default=2,
+                        help='Evaluate the top k items.')
     return parser.parse_args()

@@ -3,7 +3,7 @@ Created on Jan 23, 2018
 
 @author: v-lianji
 '''
-
+from __future__ import print_function
 import math
 import tensorflow as tf
 import time
