@@ -162,7 +162,7 @@ class NeuMF_dire():
         model_params.append(b_output)
         raw_predictions = tf.nn.xw_plus_b(model_vector, w_output, b_output, name='output')
 
-        output = tf.reshape(tf.relu(raw_predictions) * 5, [-1])
+        output = tf.reshape(tf.nn.relu(raw_predictions) * 5, [-1])
 
         with tf.name_scope('error'):
             type_of_loss = self.loss
