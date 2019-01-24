@@ -14,7 +14,7 @@ def parse_args():
                         help='Number of epochs.')
     parser.add_argument('--batch_size', type=int, default=256,
                         help='Batch size.')
-    parser.add_argument('--num_factors', type=int, default=32,
+    parser.add_argument('--num_factors', type=int, default=16,
                         help='Embedding size.')
     parser.add_argument('--reg_id_embedding', nargs='?', default=0.0, type=int,
                         help="Regularization for user and item embeddings.")
@@ -45,4 +45,6 @@ def parse_args():
                         help="Regularization for each layer")
     parser.add_argument('--dire_factors', type=int, default=2,
                         help='Evaluate the top k items.')
+    parser.add_argument('--keep_prob', nargs='?', default='[0.8,0.5,0.5,0.5]',
+                        help='Keep probability (i.e., 1-dropout_ratio) for each deep layer and the Bi-Interaction layer. 1: no dropout. Note that the last index is for the Bi-Interaction layer.')
     return parser.parse_args()

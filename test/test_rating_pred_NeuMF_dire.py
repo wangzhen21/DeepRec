@@ -24,6 +24,8 @@ def parse_args():
     parser.add_argument('--batch_size', type=int, default=256)  # 128 for unlimpair
     parser.add_argument('--learning_rate', type=float, default=1e-3)  # 1e-4 for unlimpair
     parser.add_argument('--reg_rate', type=float, default=0.1)  # 0.01 for unlimpair
+    parser.add_argument('--keep_prob', nargs='?', default='[0.8,0.5,0.5,0.5]',
+                        help='Keep probability (i.e., 1-dropout_ratio) for each deep layer and the Bi-Interaction layer. 1: no dropout. Note that the last index is for the Bi-Interaction layer.')
     return parser.parse_args()
 
 

@@ -38,6 +38,7 @@ class NeuMF_dire():
         self.display_step = display_step
         self.dire_factors = args.dire_factors
         self.num_factors = args.num_factors
+        self.keep_prob = np.array(eval(args.keep_prob))
         print("MF.")
     def GMF_build_core_model(self, user_indices,item_indices,dire_pos_indices,dire_neg_indices):
 
@@ -108,6 +109,7 @@ class NeuMF_dire():
                                          name='b_hidden_' + str(i), dtype=tf.float32)
             cur_layer = tf.nn.xw_plus_b(hidden_layers[-1], w_hidden_layer, b_hidden_layer)
             cur_layer = tf.nn.relu(cur_layer)
+            cur_layer = tf.nn.dropout(cur_layer, self.keep_prob[i])
             hidden_layers.append(cur_layer)
             model_params.append(w_hidden_layer)
             model_params.append(b_hidden_layer)
@@ -242,11 +244,9 @@ class NeuMF_dire():
                     print("one iteration: %s seconds." % (time.time() - start_time) + "\n")
 
     def test(self, test_data):
-        error = 0
-        error_mae = 0
         pred_rating_test = self.predict(test_data[0], test_data[1],test_data[3],test_data[4])
-        error = np.sum(np.power((np.array(float(test_data[2])) - np.array(pred_rating_test)),2))
-        error_mae = np.sum(np.abs(float(test_data[2]) - pred_rating_test))
+        error = np.sum(np.power((np.array(test_data[2]) - np.array(pred_rating_test)),2))
+        error_mae = np.sum(np.abs(np.array(test_data[2]) - np.array(pred_rating_test)))
         print("RMSE:" + str(RMSE(error, len(test_data[0]))[0]) + "; MAE:" + str(MAE(error_mae, len(test_data[0]))[0]))
 
     def execute(self, train_data, test_data):
