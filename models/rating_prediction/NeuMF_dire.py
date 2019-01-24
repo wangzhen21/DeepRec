@@ -247,7 +247,9 @@ class NeuMF_dire():
         pred_rating_test = self.predict(test_data[0], test_data[1],test_data[3],test_data[4])
         error = np.sum(np.power((np.array(test_data[2]) - np.array(pred_rating_test)),2))
         error_mae = np.sum(np.abs(np.array(test_data[2]) - np.array(pred_rating_test)))
-        print("RMSE:" + str(RMSE(error, len(test_data[0]))[0]) + "; MAE:" + str(MAE(error_mae, len(test_data[0]))[0]))
+        out_rmse = str(RMSE(error, len(test_data[0])))
+        out_mae= str(MAE(error_mae, len(test_data[0])))
+        print("RMSE:" + out_rmse + "; MAE:" + out_mae)
 
     def execute(self, train_data, test_data):
         self.sess = tf.Session()
