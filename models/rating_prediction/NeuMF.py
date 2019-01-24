@@ -65,10 +65,10 @@ class NeuMF():
     def MLP_build_core_model(self,user_indices,item_indices):
         init_value = self.init_stddev
 
-        emb_user = tf.Variable(tf.truncated_normal([self.num_users, self.layers[0] // 2 - 1],
+        emb_user = tf.Variable(tf.truncated_normal([self.num_users, self.layers[0] // 2],
                                                    stddev=init_value / math.sqrt(float(self.layers[0] // 4)), mean=0),
                                name='user_embedding', dtype=tf.float32)
-        emb_item = tf.Variable(tf.truncated_normal([self.num_items, self.layers[0] // 2 - 1],
+        emb_item = tf.Variable(tf.truncated_normal([self.num_items, self.layers[0] // 2],
                                                    stddev=init_value / math.sqrt(float(self.layers[0] // 4)), mean=0),
                                name='item_embedding', dtype=tf.float32)
 
@@ -201,8 +201,7 @@ class NeuMF():
             batch_dire_pos = dire_pos_random[i * self.batch_size:(i + 1) * self.batch_size]
             batch_dire_neg = dire_neg_random[i * self.batch_size:(i + 1) * self.batch_size]
 
-            _, loss, error = self.sess.run([self.train_step, self.loss, self.raw_error], {self.user_indices : batch_user, self.item_indices : batch_item, self.ratings : batch_rating,\
-                                                                                           self.dire_pos_indices:batch_dire_pos,self.dire_neg_indices:batch_dire_neg})
+            _, loss, error = self.sess.run([self.train_step, self.loss, self.raw_error], {self.user_indices : batch_user, self.item_indices : batch_item, self.ratings : batch_rating})
             loss_per_epoch += loss
             error_per_epoch += error
         error_per_epoch /= total_batch
@@ -218,7 +217,7 @@ class NeuMF():
         error = 0
         error_mae = 0
         for index in range(len(test_data[0])):
-            pred_rating_test = self.predict([test_data[0][index]], [test_data[1][index]],[test_data[3][index]],[test_data[4][index]])
+            pred_rating_test = self.predict([test_data[0][index]], [test_data[1][index]])
             error += (float(test_data[2][index]) - pred_rating_test) ** 2
             error_mae += (np.abs(float(test_data[2][index]) - pred_rating_test))
         print("RMSE:" + str(RMSE(error, len(test_data[0]))[0]) + "; MAE:" + str(MAE(error_mae, len(test_data[0]))[0]))
@@ -239,6 +238,5 @@ class NeuMF():
         saver = tf.train.Saver()
         saver.save(self.sess, path)
 
-    def predict(self,user_id,item_id,dire_pos,dire_neg):
-        return self.sess.run([self.output], feed_dict={self.user_indices : user_id, self.item_indices : item_id,self.dire_pos_indices : dire_pos,
-                                                       self.dire_neg_indices : dire_neg})[0]
+    def predict(self,user_id,item_id):
+        return self.sess.run([self.output], feed_dict={self.user_indices : user_id, self.item_indices : item_id})[0]
