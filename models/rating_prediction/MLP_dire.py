@@ -36,6 +36,7 @@ class MLP_dire():
         self.batch_size = batch_size
         self.show_time = show_time
         self.display_step = display_step
+        self.keep_prob = args.keep_prob
         print("MF.")
 
     def build_core_model(self, user_indices, item_indices,dire_pos_indices,dire_neg_indices):
@@ -70,6 +71,7 @@ class MLP_dire():
                                          name='b_hidden_' + str(i), dtype=tf.float32)
             cur_layer = tf.nn.xw_plus_b(hidden_layers[-1], w_hidden_layer, b_hidden_layer)
             cur_layer = tf.nn.relu(cur_layer)
+            cur_layer = tf.nn.dropout(cur_layer, self.keep_prob[i])
             hidden_layers.append(cur_layer)
             model_params.append(w_hidden_layer)
             model_params.append(b_hidden_layer)
@@ -191,13 +193,12 @@ class MLP_dire():
                     print("one iteration: %s seconds." % (time.time() - start_time) + "\n")
 
     def test(self, test_data):
-        error = 0
-        error_mae = 0
-        for index in range(len(test_data[0])):
-            pred_rating_test = self.predict([test_data[0][index]], [test_data[1][index]],[test_data[3][index]],[test_data[4][index]])
-            error += (float(test_data[2][index]) - pred_rating_test) ** 2
-            error_mae += (np.abs(float(test_data[2][index]) - pred_rating_test))
-        print("RMSE:" + str(RMSE(error, len(test_data[0]))[0]) + "; MAE:" + str(MAE(error_mae, len(test_data[0]))[0]))
+        pred_rating_test = self.predict(test_data[0], test_data[1],test_data[3],test_data[4])
+        error = np.sum(np.power((np.array(test_data[2]) - np.array(pred_rating_test)),2))
+        error_mae = np.sum(np.abs(np.array(test_data[2]) - np.array(pred_rating_test)))
+        out_rmse = str(RMSE(error, len(test_data[0])))
+        out_mae= str(MAE(error_mae, len(test_data[0])))
+        print("RMSE:" + out_rmse + "; MAE:" + out_mae)
 
     def execute(self, train_data, test_data):
         self.sess = tf.Session()
