@@ -162,7 +162,7 @@ class NeuMF_dire():
         model_params.append(b_output)
         raw_predictions = tf.nn.xw_plus_b(model_vector, w_output, b_output, name='output')
 
-        output = tf.reshape(tf.nn.relu(raw_predictions) * 5, [-1])
+        output = tf.reshape(tf.sigmoid(raw_predictions) * 5, [-1])
 
         with tf.name_scope('error'):
             type_of_loss = self.loss
@@ -244,10 +244,9 @@ class NeuMF_dire():
     def test(self, test_data):
         error = 0
         error_mae = 0
-        for index in range(len(test_data[0])):
-            pred_rating_test = self.predict([test_data[0][index]], [test_data[1][index]],[test_data[3][index]],[test_data[4][index]])
-            error += (float(test_data[2][index]) - pred_rating_test) ** 2
-            error_mae += (np.abs(float(test_data[2][index]) - pred_rating_test))
+        pred_rating_test = self.predict(test_data[0], test_data[1],test_data[3],test_data[4])
+        error = np.sum(np.power((np.array(float(test_data[2])) - np.array(pred_rating_test)),2))
+        error_mae = np.sum(np.abs(float(test_data[2]) - pred_rating_test))
         print("RMSE:" + str(RMSE(error, len(test_data[0]))[0]) + "; MAE:" + str(MAE(error_mae, len(test_data[0]))[0]))
 
     def execute(self, train_data, test_data):
@@ -266,4 +265,4 @@ class NeuMF_dire():
 
     def predict(self,user_id,item_id,dire_pos,dire_neg):
         return self.sess.run([self.output], feed_dict={self.user_indices : user_id, self.item_indices : item_id,self.dire_pos_indices : dire_pos,
-                                                       self.dire_neg_indices : dire_neg})[0]
+                                                       self.dire_neg_indices : dire_neg})
