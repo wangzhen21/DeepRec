@@ -45,6 +45,6 @@ def parse_args():
                         help="Regularization for each layer")
     parser.add_argument('--dire_factors', type=int, default=2,
                         help='Evaluate the top k items.')
-    parser.add_argument('--keep_prob', nargs='?', default='[0.5,0.5,0.3,0.2]',
+    parser.add_argument('--keep_prob', nargs='?', default='[0.8,0.8,0.8,0.8]',
                         help='Keep probability (i.e., 1-dropout_ratio) for each deep layer and the Bi-Interaction layer. 1: no dropout. Note that the last index is for the Bi-Interaction layer.')
     return parser.parse_args()
