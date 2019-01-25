@@ -12,7 +12,7 @@ import sys
 
 from utils.evaluation.RatingMetrics import *
 class MF_manu_dire_neg_pos():
-    def __init__(self, sess, num_user, num_item, num_dire,learning_rate=0.001, reg_rate=0.01, epoch=500, batch_size=128,
+    def __init__(self, sess, num_user, num_item, num_dire,learning_rate=0.001, reg_rate=0.008, epoch=500, batch_size=256,
                  show_time=False, T=1, display_step=1000):
         self.learning_rate = learning_rate
         self.epochs = epoch
