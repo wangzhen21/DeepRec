@@ -85,7 +85,7 @@ class MF_manu():
         out_rmse = str(RMSE(error, len(test_data[0])))
         out_mae= str(MAE(error_mae, len(test_data[0])))
         print("RMSE:" + out_rmse + "; MAE:" + out_mae)
-        outfile("log/mf_menu.log",self.starttime  + "\t" + "RMSE:" + out_rmse + "; MAE:" + out_mae)
+        outfile("../log/mf_menu.log",self.starttime  + "\t" + "RMSE:" + out_rmse + "; MAE:" + out_mae)
         #tf.Print(self.B_Dire, [self.B_Dire], "self.B_Dire: ", summarize=9)
     def execute(self, train_data, test_data):
         self.starttime = str(datetime.datetime.now())
