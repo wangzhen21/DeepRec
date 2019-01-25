@@ -54,8 +54,9 @@ class MLP():
         item_feature = tf.nn.embedding_lookup(emb_item, item_indices, name='item_feature')
 
         hidden_layers = [tf.concat([user_feature, item_feature], 1)]
-
-        model_params = [emb_user, emb_item]
+        model_params = [[], []]
+        model_params[0].append(emb_user)
+        model_params[0].append(emb_item)
 
         for i in range(1, len(self.layers)):
             w_hidden_layer = tf.Variable(
@@ -65,9 +66,11 @@ class MLP():
                                          name='b_hidden_' + str(i), dtype=tf.float32)
             cur_layer = tf.nn.xw_plus_b(hidden_layers[-1], w_hidden_layer, b_hidden_layer)
             cur_layer = tf.nn.relu(cur_layer)
+            cur_layer = tf.nn.dropout(cur_layer, self.keep_prob[i])
             hidden_layers.append(cur_layer)
-            model_params.append(w_hidden_layer)
-            model_params.append(b_hidden_layer)
+            model_params[1].append(w_hidden_layer)
+            model_params[1].append(b_hidden_layer)
+
 
         return hidden_layers[-1], self.layers[-1], model_params
 
@@ -96,8 +99,8 @@ class MLP():
                                dtype=tf.float32)
         b_output = tf.Variable(tf.truncated_normal([1], stddev=init_value * 0.01, mean=0), name='b_output',
                                dtype=tf.float32)
-        model_params.append(w_output)
-        model_params.append(b_output)
+        model_params[1].append(w_output)
+        model_params[1].append(b_output)
         raw_predictions = tf.nn.xw_plus_b(model_vector, w_output, b_output, name='output')
 
         output = tf.reshape(tf.sigmoid(raw_predictions) * 5, [-1])
@@ -119,8 +122,10 @@ class MLP():
                 error = tf.reduce_mean(raw_error, name='error/mean_log_loss')
 
             l2_norm = 0
-            for par in model_params:
+            for par in model_params[1]:
                 l2_norm += tf.nn.l2_loss(par) * self.lambda_others
+            for par in model_params[0]:
+                l2_norm += tf.nn.l2_loss(par) * self.lambda_id_emb
             r'''
             l2_norm += tf.nn.l2_loss(emb_user) * self.lambda_id_emb
             l2_norm += tf.nn.l2_loss(emb_item) * self.lambda_id_emb
