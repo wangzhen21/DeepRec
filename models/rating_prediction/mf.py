@@ -52,8 +52,8 @@ class MF():
         user_bias = tf.nn.embedding_lookup(self.B_U, self.user_id)
         item_bias = tf.nn.embedding_lookup(self.B_I, self.item_id)
 
-        #self.pred_rating = tf.reduce_sum(tf.multiply(user_latent_factor, item_latent_factor), 1) + user_bias + item_bias
-        self.pred_rating = tf.reduce_sum(tf.multiply(user_latent_factor, item_latent_factor), 1)
+        self.pred_rating = tf.reduce_sum(tf.multiply(user_latent_factor, item_latent_factor), 1) + user_bias + item_bias
+        #self.pred_rating = tf.reduce_sum(tf.multiply(user_latent_factor, item_latent_factor), 1)
 
     def train(self, train_data):
         self.num_training = len(self.rating)

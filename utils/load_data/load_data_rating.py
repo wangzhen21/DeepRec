@@ -5,6 +5,9 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from scipy.sparse import csr_matrix
 
+def outfile(file,outstr):
+    with open(file, 'awb+') as f:
+        f.write(outstr +"\n")
 
 def load_data_rating(path="../data/ml100k/movielens_100k.dat", header=['user_id', 'item_id', 'rating', 'category'],
                      test_size=0.1, sep="\t"):
@@ -21,7 +24,8 @@ def load_data_rating(path="../data/ml100k/movielens_100k.dat", header=['user_id'
 
     n_users = df.user_id.unique().shape[0]
     n_items = df.item_id.unique().shape[0]
-
+    if path.find("ratings_t.dat") > 0:
+        n_items = 3952
     train_data, test_data = train_test_split(df, test_size=test_size)
     train_data = pd.DataFrame(train_data)
     test_data = pd.DataFrame(test_data)

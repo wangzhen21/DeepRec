@@ -34,14 +34,14 @@ if __name__ == '__main__':
     display_step = args.display_step
     batch_size = args.batch_size
 
-    #train_data, test_data, n_user, n_item = load_data_rating(path="../Data/ml100k/movielens_100k.dat",
-    train_data, test_data, n_user, n_item ,n_dire= load_data_rating_menu(path="../Data/ml1m/ratings_date_dire_t.dat",
-    #train_data, test_data, n_user, n_item = load_data_rating(path="../Data/ml1m/ratings_date_dire_t.dat",
-                                                             header=['user_id', 'item_id', 'rating', 't','this_dire_time','whole_dire_time'],
-                                                             test_size=0.1, sep="\t")
-    dire_num  = []
-    for key,val in train_data.items():
-        dire_num.append(key[2])
+    # train_data, test_data, n_user, n_item = load_data_rating(path="../Data/ml100k/movielens_100k.dat",
+    train_data, test_data, n_user, n_item, n_dire = load_data_rating_menu_dire_neg_pos(
+        trainpath="../data/ml1m/train_1m_ratings.dat", testpath="../data/ml1m/test_1m_ratings.dat",
+        # train_data, test_data, n_user, n_item = load_data_rating(path="../Data/ml1m/ratings_date_dire_t.dat",
+        header=['user_id', 'item_id', 'rating', 'timestamp', 'dire_thistime', 'dire_allnum', \
+                'dire_index', 'dire_name', 'pos', 'neg', 'scoreseq'],
+        test_size=0.1, sep="\t")
+
 
     config = tf.ConfigProto()
     config.gpu_options.allow_growth = True

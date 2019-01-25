@@ -5,7 +5,6 @@ Created on Jan 23, 2018
 '''
 import argparse
 
-
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--path', nargs='?', default='../Data/ml-1m/',

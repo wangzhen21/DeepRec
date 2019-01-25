@@ -6,6 +6,8 @@ Reference: Koren, Yehuda, Robert Bell, and Chris Volinsky. "Matrix factorization
 import tensorflow as tf
 import time
 import numpy as np
+import datetime
+import sys
 
 from utils.evaluation.RatingMetrics import *
 class MF_manu_dire_neg_pos():
@@ -47,9 +49,9 @@ class MF_manu_dire_neg_pos():
         dire_pos_bias = tf.nn.embedding_lookup(self.B_Dire_pos, self.dire_pos_num)
         dire_neg_bias = tf.nn.embedding_lookup(self.B_Dire_neg, self.dire_neg_num)
         #self.pred_rating = tf.reduce_sum(tf.multiply(user_latent_factor, item_latent_factor), 1) + user_bias + item_bias
+        self.pred_rating = tf.reduce_sum(tf.multiply(user_latent_factor, item_latent_factor), 1) + dire_pos_bias + dire_neg_bias + user_bias + item_bias
         #self.pred_rating = tf.reduce_sum(tf.multiply(user_latent_factor, item_latent_factor), 1) + dire_pos_bias + dire_neg_bias
-        #self.pred_rating = tf.reduce_sum(tf.multiply(user_latent_factor, item_latent_factor), 1) + dire_pos_bias + dire_neg_bias
-        self.pred_rating = tf.reduce_sum(tf.multiply(user_latent_factor, item_latent_factor), 1) + dire_pos_bias
+        #self.pred_rating = tf.reduce_sum(tf.multiply(user_latent_factor, item_latent_factor), 1) + dire_pos_bias
         #self.pred_rating = tf.reduce_sum(tf.multiply(user_latent_factor, item_latent_factor), 1)
 
     def train(self, train_data):
@@ -83,17 +85,15 @@ class MF_manu_dire_neg_pos():
                     print("one iteration: %s seconds." % (time.time() - start_time) + "\n")
 
     def test(self, test_data):
-        error = 0
-        error_mae = 0
-        lens = len(test_data[0])
-        for i in range(lens):
-            pred_rating_test = self.predict([test_data[0][i]], [test_data[1][i]], [test_data[3][i]], [test_data[4][i]])
-            error += (float(test_data[2][i]) - pred_rating_test) ** 2
-            error_mae += (np.abs(float(test_data[2][i]) - pred_rating_test))
-        print("RMSE:" + str(RMSE(error, len(test_data[2]))[0]) + "; MAE:" + str(MAE(error_mae, len(test_data[2]))[0]))
+        pred_rating_test = self.predict(test_data[0], test_data[1],test_data[3],test_data[4])
+        error = np.sum(np.power((np.array(test_data[2]) - np.array(pred_rating_test)),2))
+        error_mae = np.sum(np.abs(np.array(test_data[2]) - np.array(pred_rating_test)))
+        out_rmse = str(RMSE(error, len(test_data[0])))
+        out_mae= str(MAE(error_mae, len(test_data[0])))
+        print("RMSE:" + out_rmse + "; MAE:" + out_mae)
 
     def execute(self, train_data, test_data):
-
+        self.starttime = str(datetime.datetime.now())
         self.pred_rating += np.mean(train_data[2])
         self.loss = tf.reduce_sum(tf.square(self.y - self.pred_rating)) \
                     + self.reg_rate * (
@@ -117,4 +117,4 @@ class MF_manu_dire_neg_pos():
 
     def predict(self, user_id, item_id,dir_pos,dir_num_neg):
         return self.sess.run([self.pred_rating], feed_dict={self.user_id: user_id, self.item_id: item_id,self.dire_pos_num:dir_pos,\
-                                                            self.dire_neg_num:dir_num_neg})[0]
+                                                            self.dire_neg_num:dir_num_neg})

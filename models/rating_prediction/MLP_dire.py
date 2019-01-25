@@ -8,6 +8,7 @@ import math
 import tensorflow as tf
 import time
 import numpy as np
+from utils.load_data.load_data_rating import *
 
 def RMSE(error, num):
     return np.sqrt(error / num)
@@ -199,7 +200,7 @@ class MLP_dire():
         out_rmse = str(RMSE(error, len(test_data[0])))
         out_mae= str(MAE(error_mae, len(test_data[0])))
         print("RMSE:" + out_rmse + "; MAE:" + out_mae)
-
+        outfile("log/MLP_dire.log",self.starttime  + "\t" + "RMSE\t" + out_rmse + "; MAE:" + out_mae)
     def execute(self, train_data, test_data):
         self.sess = tf.Session()
         init = tf.global_variables_initializer()
