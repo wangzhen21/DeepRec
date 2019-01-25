@@ -38,12 +38,12 @@ def parse_args():
     parser.add_argument('--topk', type=int, default=10,
                         help='Evaluate the top k items.')
 
-    parser.add_argument('--layers', nargs='?', default='[128,64,32,16]',
+    parser.add_argument('--layers', nargs='?', default='[64,32,16,8]',
                         help="Size of each layer. Note that the first layer is the concatenation of user and item embeddings. So layers[0]/2 is the embedding size.")
     parser.add_argument('--reg_layers', nargs='?', default='[0,0,0,0]',
                         help="Regularization for each layer")
     parser.add_argument('--dire_factors', type=int, default=2,
                         help='Evaluate the top k items.')
-    parser.add_argument('--keep_prob', nargs='?', default='[0.8,0.8,0.8,0.8]',
+    parser.add_argument('--keep_prob', nargs='?', default='[0.5,0.5,0.5,0.5]',
                         help='Keep probability (i.e., 1-dropout_ratio) for each deep layer and the Bi-Interaction layer. 1: no dropout. Note that the last index is for the Bi-Interaction layer.')
     return parser.parse_args()
