@@ -8,6 +8,8 @@ import math
 import tensorflow as tf
 import time
 import numpy as np
+from utils.load_data.load_data_rating import *
+import datetime
 
 def RMSE(error, num):
     return np.sqrt(error / num)
@@ -191,6 +193,14 @@ class NeuMF():
         rating_random = list(np.array(train_data[2])[idxs])
         dire_pos_random = list(np.array(train_data[3])[idxs])
         dire_neg_random = list(np.array(train_data[4])[idxs])
+
+        idxs = np.random.permutation(self.num_training)  # shuffled ordering
+
+        user_random = list(np.array(user_random)[idxs])
+        item_random = list(np.array(item_random)[idxs])
+        rating_random = list(np.array(rating_random)[idxs])
+        dire_pos_random = list(np.array(dire_pos_random)[idxs])
+        dire_neg_random = list(np.array(dire_neg_random)[idxs])
         # train
         loss_per_epoch, error_per_epoch = 0, 0
         for i in range(total_batch):
@@ -214,15 +224,17 @@ class NeuMF():
                     print("one iteration: %s seconds." % (time.time() - start_time) + "\n")
 
     def test(self, test_data):
-        error = 0
-        error_mae = 0
-        for index in range(len(test_data[0])):
-            pred_rating_test = self.predict([test_data[0][index]], [test_data[1][index]])
-            error += (float(test_data[2][index]) - pred_rating_test) ** 2
-            error_mae += (np.abs(float(test_data[2][index]) - pred_rating_test))
-        print("RMSE:" + str(RMSE(error, len(test_data[0]))[0]) + "; MAE:" + str(MAE(error_mae, len(test_data[0]))[0]))
+        pred_rating_test = self.predict(test_data[0], test_data[1],test_data[3],test_data[4])
+        error = np.sum(np.power((np.array(test_data[2]) - np.array(pred_rating_test)),2))
+        error_mae = np.sum(np.abs(np.array(test_data[2]) - np.array(pred_rating_test)))
+        out_rmse = str(RMSE(error, len(test_data[0])))
+        out_mae= str(MAE(error_mae, len(test_data[0])))
+        print("RMSE:" + out_rmse + "; MAE:" + out_mae)
+        outfile("../log/NeuMF.log",self.starttime  + "\t" + "RMSE\t" + out_rmse + "; MAE:" + out_mae)
 
     def execute(self, train_data, test_data):
+        self.starttime = str(datetime.datetime.now())
+        outfile("../log/NeuMF.log", "\n\n")
         self.sess = tf.Session()
         init = tf.global_variables_initializer()
         self.sess.run(init)

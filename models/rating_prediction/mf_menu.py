@@ -89,6 +89,7 @@ class MF_manu():
         #tf.Print(self.B_Dire, [self.B_Dire], "self.B_Dire: ", summarize=9)
     def execute(self, train_data, test_data):
         self.starttime = str(datetime.datetime.now())
+        outfile("../log/mf_menu_dire.log", "\n\n")
         self.pred_rating += np.mean(train_data[2])
         self.loss = tf.reduce_sum(tf.square(self.y - self.pred_rating)) \
                     + self.reg_rate * (

@@ -9,7 +9,7 @@ import tensorflow as tf
 import time
 import numpy as np
 from utils.load_data.load_data_rating import *
-
+import datetime
 def RMSE(error, num):
     return np.sqrt(error / num)
 
@@ -170,6 +170,14 @@ class MLP_dire():
         rating_random = list(np.array(train_data[2])[idxs])
         dire_pos_random = list(np.array(train_data[3])[idxs])
         dire_neg_random = list(np.array(train_data[4])[idxs])
+
+        idxs = np.random.permutation(self.num_training)  # shuffled ordering
+
+        user_random = list(np.array(user_random)[idxs])
+        item_random = list(np.array(item_random)[idxs])
+        rating_random = list(np.array(rating_random)[idxs])
+        dire_pos_random = list(np.array(dire_pos_random)[idxs])
+        dire_neg_random = list(np.array(dire_neg_random)[idxs])
         # train
         t2 = time.time()
         loss_per_epoch, error_per_epoch = 0, 0
@@ -200,8 +208,10 @@ class MLP_dire():
         out_rmse = str(RMSE(error, len(test_data[0])))
         out_mae= str(MAE(error_mae, len(test_data[0])))
         print("RMSE:" + out_rmse + "; MAE:" + out_mae)
-        outfile("log/MLP_dire.log",self.starttime  + "\t" + "RMSE\t" + out_rmse + "; MAE:" + out_mae)
+        outfile("../log/MLP_dire.log",self.starttime  + "\t" + "RMSE\t" + out_rmse + "; MAE:" + out_mae)
     def execute(self, train_data, test_data):
+        self.starttime = str(datetime.datetime.now())
+        outfile("../log/MLP_dire.log", "\n\n")
         self.sess = tf.Session()
         init = tf.global_variables_initializer()
         self.sess.run(init)

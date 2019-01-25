@@ -8,6 +8,9 @@ import math
 import tensorflow as tf
 import time
 import numpy as np
+import datetime
+from utils.load_data.load_data_rating import *
+
 from __future__ import print_function
 
 def RMSE(error, num):
@@ -152,6 +155,12 @@ class MLP():
         user_random = list(np.array(train_data[0])[idxs])
         item_random = list(np.array(train_data[1])[idxs])
         rating_random = list(np.array(train_data[2])[idxs])
+
+        idxs = np.random.permutation(self.num_training)  # shuffled ordering
+
+        user_random = list(np.array(user_random)[idxs])
+        item_random = list(np.array(item_random)[idxs])
+        rating_random = list(np.array(rating_random)[idxs])
         # train
         loss_per_epoch, error_per_epoch = 0, 0
         for i in range(total_batch):
@@ -178,8 +187,11 @@ class MLP():
         out_rmse = str(RMSE(error, len(test_data[0])))
         out_mae= str(MAE(error_mae, len(test_data[0])))
         print("RMSE:" + out_rmse + "; MAE:" + out_mae)
+        outfile("../log/MLP.log",self.starttime  + "\t" + "RMSE:" + out_rmse + "; MAE:" + out_mae)
 
     def execute(self, train_data, test_data):
+        self.starttime = str(datetime.datetime.now())
+        outfile("../log/MLP.log", "\n\n")
         self.sess = tf.Session()
         init = tf.global_variables_initializer()
         self.sess.run(init)

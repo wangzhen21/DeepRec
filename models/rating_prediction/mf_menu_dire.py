@@ -7,6 +7,7 @@ import tensorflow as tf
 import time
 import numpy as np
 import datetime
+from utils.load_data.load_data_rating import *
 import sys
 
 from utils.evaluation.RatingMetrics import *
@@ -100,9 +101,11 @@ class MF_manu_dire_neg_pos():
         out_rmse = str(RMSE(error, len(test_data[0])))
         out_mae= str(MAE(error_mae, len(test_data[0])))
         print("RMSE:" + out_rmse + "; MAE:" + out_mae)
+        outfile("../log/mf_menu_dire.log",self.starttime  + "\t" + "RMSE:" + out_rmse + "; MAE:" + out_mae)
 
     def execute(self, train_data, test_data):
         self.starttime = str(datetime.datetime.now())
+        outfile("../log/mf_menu_dire.log", "\n\n")
         self.pred_rating += np.mean(train_data[2])
         self.loss = tf.reduce_sum(tf.square(self.y - self.pred_rating)) \
                     + self.reg_rate * (
