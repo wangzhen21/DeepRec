@@ -3,7 +3,7 @@ Created on Jan 23, 2018
 
 @author: v-lianji
 '''
-
+from __future__ import print_function
 import math
 import tensorflow as tf
 import time
@@ -11,7 +11,6 @@ import numpy as np
 import datetime
 from utils.load_data.load_data_rating import *
 
-from __future__ import print_function
 
 def RMSE(error, num):
     return np.sqrt(error / num)
