@@ -6,6 +6,7 @@ Reference: Koren, Yehuda, Robert Bell, and Chris Volinsky. "Matrix factorization
 import tensorflow as tf
 import time
 import numpy as np
+from utils.load_data.load_data_rating import *
 
 from utils.evaluation.RatingMetrics import *
 class MF_manu():
@@ -52,6 +53,13 @@ class MF_manu():
         user_random = list(np.array(train_data[0])[idxs])
         item_random = list(np.array(train_data[1])[idxs])
         rating_random = list(np.array(train_data[2])[idxs])
+
+        idxs = np.random.permutation(self.num_training)  # shuffled ordering
+
+        user_random = list(np.array(user_random)[idxs])
+        item_random = list(np.array(item_random)[idxs])
+        rating_random = list(np.array(rating_random)[idxs])
+
         # train
         for i in range(total_batch):
             start_time = time.time()
@@ -74,8 +82,8 @@ class MF_manu():
         error_mae = np.sum(np.abs(np.array(test_data[2]) - np.array(pred_rating_test)))
         out_rmse = str(RMSE(error, len(test_data[0])))
         out_mae= str(MAE(error_mae, len(test_data[0])))
-
         print("RMSE:" + out_rmse + "; MAE:" + out_mae)
+        outfile("log/mf_menu.log",self.starttime  + "\t" + "RMSE:" + out_rmse + "; MAE:" + out_mae)
         #tf.Print(self.B_Dire, [self.B_Dire], "self.B_Dire: ", summarize=9)
     def execute(self, train_data, test_data):
 

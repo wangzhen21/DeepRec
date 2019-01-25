@@ -64,6 +64,15 @@ class MF_manu_dire_neg_pos():
         rating_random = list(np.array(train_data[2])[idxs])
         dire_pos_random = list(np.array(train_data[3])[idxs])
         dire_neg_random = list(np.array(train_data[4])[idxs])
+
+        idxs = np.random.permutation(self.num_training)  # shuffled ordering
+
+        user_random = list(np.array(user_random)[idxs])
+        item_random = list(np.array(item_random)[idxs])
+        rating_random = list(np.array(rating_random)[idxs])
+        dire_pos_random = list(np.array(dire_pos_random)[idxs])
+        dire_neg_random = list(np.array(dire_neg_random)[idxs])
+
         # train
         for i in range(total_batch):
             start_time = time.time()

@@ -41,7 +41,9 @@ if __name__ == '__main__':
         header=['user_id', 'item_id', 'rating', 'timestamp', 'dire_thistime', 'dire_allnum', \
                 'dire_index', 'dire_name', 'pos', 'neg', 'scoreseq'],
         test_size=0.1, sep="\t")
-
+    dire_num  = []
+    for key,val in train_data.items():
+        dire_num.append(key[2])
 
     config = tf.ConfigProto()
     config.gpu_options.allow_growth = True
