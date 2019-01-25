@@ -17,7 +17,7 @@ def parse_args():
                         help='Embedding size.')
     parser.add_argument('--reg_id_embedding', nargs='?', default=0.0, type=int,
                         help="Regularization for user and item embeddings.")
-    parser.add_argument('--reg_others', nargs='?', default=0.0, type=float,
+    parser.add_argument('--reg_others', nargs='?', default=0.1, type=float,
                         help="Regularization for general variables.")
     parser.add_argument('--init_stddev', nargs='?', default=0.1, type=float,
                         help="Init stddev value for variables.")
