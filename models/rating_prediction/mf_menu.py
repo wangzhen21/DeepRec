@@ -7,6 +7,8 @@ import tensorflow as tf
 import time
 import numpy as np
 from utils.load_data.load_data_rating import *
+import datetime
+
 
 from utils.evaluation.RatingMetrics import *
 class MF_manu():
@@ -86,7 +88,7 @@ class MF_manu():
         outfile("log/mf_menu.log",self.starttime  + "\t" + "RMSE:" + out_rmse + "; MAE:" + out_mae)
         #tf.Print(self.B_Dire, [self.B_Dire], "self.B_Dire: ", summarize=9)
     def execute(self, train_data, test_data):
-
+        self.starttime = str(datetime.datetime.now())
         self.pred_rating += np.mean(train_data[2])
         self.loss = tf.reduce_sum(tf.square(self.y - self.pred_rating)) \
                     + self.reg_rate * (
