@@ -15,9 +15,9 @@ def parse_args():
                         help='Batch size.')
     parser.add_argument('--num_factors', type=int, default=16,
                         help='Embedding size.')
-    parser.add_argument('--reg_id_embedding', nargs='?', default=0.15, type=int,
+    parser.add_argument('--reg_id_embedding', nargs='?', default=0.01, type=int,
                         help="Regularization for user and item embeddings.")
-    parser.add_argument('--reg_others', nargs='?', default=0.15, type=float,
+    parser.add_argument('--reg_others', nargs='?', default=0.01, type=float,
                         help="Regularization for general variables.")
     parser.add_argument('--init_stddev', nargs='?', default=0.1, type=float,
                         help="Init stddev value for variables.")
