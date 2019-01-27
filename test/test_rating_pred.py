@@ -15,7 +15,7 @@ from utils.load_data.load_data_content import *
 
 def parse_args():
     parser = argparse.ArgumentParser(description='nnRec')
-    parser.add_argument('--model', choices=['MF', 'NNMF', 'NRR', 'I-AutoRec', 'U-AutoRec', 'FM', 'NFM', 'AFM'], default='MF')
+    parser.add_argument('--model', choices=['MF', 'NNMF', 'NRR', 'I-AutoRec', 'U-AutoRec', 'FM', 'NFM', 'AFM'], default='NFM')
     parser.add_argument('--epochs', type=int, default=1000)
     parser.add_argument('--num_factors', type=int, default=10)
     parser.add_argument('--display_step', type=int, default=1000)
@@ -35,7 +35,7 @@ if __name__ == '__main__':
     batch_size = args.batch_size
 
     #train_data, test_data, n_user, n_item = load_data_rating(path="../Data/ml100k/movielens_100k.dat",
-    train_data, test_data, n_user, n_item = load_data_rating(path="../Data/ml1m/ratings_t.dat",
+    train_data, test_data, n_user, n_item = load_data_rating(path="../data/ml1m/ratings_t.dat",
     #train_data, test_data, n_user, n_item = load_data_rating(path="../Data/ml1m/ratings_date_dire_t.dat",
                                                              header=['user_id', 'item_id', 'rating', 't'],
                                                              test_size=0.1, sep="\t")
@@ -58,7 +58,7 @@ if __name__ == '__main__':
         if args.model == "U-AutoRec":
             model = UAutoRec(sess, n_user, n_item)
         if args.model == "NFM":
-            train_data, test_data, feature_M = load_data_fm()
+            train_data, test_data, feature_M = load_data_fm("../Data/frappe/frappe.train.libfm","../Data/frappe/frappe.test.libfm",' ')
             n_user = 957
             n_item = 4082
             model = NFM(sess, n_user, n_item)

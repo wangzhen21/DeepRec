@@ -3,14 +3,13 @@
 Reference: Koren, Yehuda, Robert Bell, and Chris Volinsky. "Matrix factorization techniques for recommender systems." Computer 42.8 (2009).
 Orginal Implementation:
 """
-
+from __future__ import print_function
 import tensorflow as tf
 import time
 from sklearn.metrics import mean_squared_error
 import math
 
 from utils.evaluation.RatingMetrics import *
-
 __author__ = "Shuai Zhang"
 __copyright__ = "Copyright 2018, The DeepRec Project"
 
@@ -37,7 +36,6 @@ class NFM():
 
 
     def build_network(self, feature_M, num_factor = 128, num_hidden = 128):
-
 
         # model dependent arguments
         self.train_features = tf.placeholder(tf.int32, shape=[None, None])
@@ -89,20 +87,13 @@ class NFM():
 
 
     def train(self, train_data):
-        self.num_training = len(train_data[0])
+        self.num_training = len(train_data['Y'])
         total_batch = int( self.num_training/ self.batch_size)
-        train_user = train_data[0]
-        train_item = train_data[1]
-        train_rating = train_data[2]
-        train_dire_pos = train_data[3]
-        train_dire_neg = train_data[4]
+
         rng_state = np.random.get_state()
-        np.random.shuffle(train_user)
+        np.random.shuffle(train_data['Y'])
         np.random.set_state(rng_state)
-        np.random.shuffle(train_item)
-        np.random.shuffle(train_dire_pos)
-        np.random.shuffle(train_dire_neg)
-        np.random.shuffle(train_rating)
+        np.random.shuffle(train_data['X'])
         # train
         for i in range(total_batch):
             start_time = time.time()
@@ -145,7 +136,7 @@ class NFM():
         for epoch in range(self.epochs):
             print("Epoch: %04d;" % (epoch))
             self.train(train_data)
-            if (epoch) % self.T == 0 and epoch > 100:
+            if (epoch) % self.T == 0:
                 self.test(test_data)
 
     def save(self, path):
@@ -154,4 +145,3 @@ class NFM():
 
     def predict(self, user_id, item_id):
         return self.sess.run([self.pred_rating], feed_dict={self.user_id: user_id, self.item_id: item_id})[0]
-
