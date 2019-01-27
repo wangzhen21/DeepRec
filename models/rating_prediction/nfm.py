@@ -8,6 +8,7 @@ import tensorflow as tf
 import time
 from sklearn.metrics import mean_squared_error
 import math
+import datetime
 
 from utils.evaluation.RatingMetrics import *
 __author__ = "Shuai Zhang"
@@ -19,6 +20,9 @@ __maintainer__ = "Shuai Zhang"
 __email__ = "cheungdaven@gmail.com"
 __status__ = "Development"
 
+def outfile(file,outstr):
+    with open(file, 'awb+') as f:
+        f.write(outstr +"\n")
 class NFM():
 
     def __init__(self, sess, num_user, num_item, learning_rate = 0.05, reg_rate = 0.01, epoch = 500, batch_size = 128, show_time = False, T =2, display_step= 1000):
@@ -64,7 +68,7 @@ class NFM():
                                   kernel_initializer=tf.random_normal_initializer, activation=tf.nn.relu,
                                   kernel_regularizer=tf.contrib.layers.l2_regularizer(scale=self.reg_rate))
 
-        self.FM =  tf.matmul(tf.nn.dropout(layer_1, 0.8), self.pred_weight)
+        self.FM =  tf.matmul(tf.nn.dropout(layer_1, self.dropout_keep), self.pred_weight)
 
 
 
@@ -102,7 +106,7 @@ class NFM():
 
             loss, opt = self.sess.run((self.loss, self.optimizer), feed_dict={self.train_features: batch_x,
                                                                               self.y: batch_y,
-                                                                              self.dropout_keep:0.5})
+                                                                              self.dropout_keep:0.8})
             if i % self.display_step == 0:
                 print("Index: %04d; cost= %.9f" % (i + 1, np.mean(loss)))
                 if self.show_time:
@@ -127,9 +131,10 @@ class NFM():
         RMSE = math.sqrt(mean_squared_error(y_true, predictions_bounded))
 
         print("RMSE:" + str(RMSE))
-
+        outfile("../log/NFM.log", self.starttime + "\t" + "RMSE\t" + str(RMSE))
     def execute(self, train_data, test_data):
-
+        self.starttime = str(datetime.datetime.now())
+        outfile("../log/NeuMF_dire.log", "\n\n")
         init = tf.global_variables_initializer()
         self.sess.run(init)
 

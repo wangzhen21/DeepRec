@@ -58,7 +58,7 @@ if __name__ == '__main__':
         if args.model == "U-AutoRec":
             model = UAutoRec(sess, n_user, n_item)
         if args.model == "NFM":
-            train_data, test_data, feature_M = load_data_fm("../data/ml1m/train_1m_ratings.dat.nfm","../data/ml1m/test_1m_ratings.dat.nfm",'\t')
+            train_data, test_data, feature_M = load_data_fm("../data/ml1m/train_1m_ratings.dat.nfm.no.dire","../data/ml1m/test_1m_ratings.dat.nfm.no.dire",'\t')
             n_user = 6041
             n_item = 3953
             model = NFM(sess, n_user, n_item)
