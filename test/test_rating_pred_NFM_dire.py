@@ -15,7 +15,7 @@ from utils.load_data.load_data_content import *
 
 def parse_args():
     parser = argparse.ArgumentParser(description='nnRec')
-    parser.add_argument('--model', choices=['MF', 'NNMF', 'NRR', 'I-AutoRec', 'U-AutoRec', 'FM', 'NFM', 'AFM','NFM_MOD_MLP'], default='NFM')
+    parser.add_argument('--model', choices=['MF', 'NNMF', 'NRR', 'I-AutoRec', 'U-AutoRec', 'FM', 'NFM', 'AFM','NFM_MOD_MLP'], default='NFM_MOD_MLP')
     parser.add_argument('--epochs', type=int, default=1000)
     parser.add_argument('--num_factors', type=int, default=10)
     parser.add_argument('--display_step', type=int, default=1000)

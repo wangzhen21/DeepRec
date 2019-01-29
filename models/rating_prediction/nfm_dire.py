@@ -162,13 +162,28 @@ class NFM_dire_add_MLP():
         self.show_time = show_time
         self.T = T
         self.display_step = display_step
+        self.dire_num = 47
         print("NFM.")
+        self.init_value = 0.1
 
-
-    def build_network(self, feature_M, num_factor = 64, num_hidden = 128,added_factor = 2):
+    def build_network(self, feature_M, num_factor = 64, num_hidden = 128,added_factor = 4):
+        init_value = self.init_value
         # model dependent arguments
         self.train_features = tf.placeholder(tf.int32, shape=[None, None])
-        self.train_features_add = tf.placeholder(tf.int32, shape=[None, 2])
+
+        ############################
+        self.dire_pos_indices = tf.placeholder(tf.int32, shape=[None,1])
+        self.dire_neg_indices = tf.placeholder(tf.int32, shape=[None,1])
+        emb_dire_pos = tf.Variable(tf.truncated_normal([self.dire_num, added_factor/2],
+                                                       stddev=0.1 / math.sqrt(float(added_factor)), mean=0),
+                                   name='emb_dire_pos', dtype=tf.float32)
+        emb_dire_neg = tf.Variable(tf.truncated_normal([self.dire_num, added_factor/2],
+                                                       stddev=init_value / math.sqrt(float(added_factor)), mean=0),
+                                   name='emb_dire_neg', dtype=tf.float32)
+
+        self.pos_dire_feature = tf.nn.embedding_lookup(emb_dire_pos, self.dire_pos_indices, name='dire_pos_feature')
+        self.neg_dire_feature = tf.nn.embedding_lookup(emb_dire_neg, self.dire_neg_indices, name='dire_neg_feature')
+        #############################
         self.y = tf.placeholder(tf.float32, shape=[None, 1])
         self.dropout_keep = tf.placeholder(tf.float32)
 
@@ -187,8 +202,9 @@ class NFM_dire_add_MLP():
         self.summed_squared_features_embedding = tf.reduce_sum(self.squared_features_embedding, 1)
 
         self.FM = 0.5 * tf.subtract( self.squared_summed_features_embedding, self.summed_squared_features_embedding)
-        self.train_features_add = tf.to_float(self.train_features_add)
-        self.FM = tf.concat([self.FM, self.train_features_add], axis=1)
+        self.pos_dire_feature = tf.reduce_sum(self.pos_dire_feature, 1)
+        self.neg_dire_feature = tf.reduce_sum(self.neg_dire_feature, 1)
+        self.FM = tf.concat([self.FM, self.pos_dire_feature,self.neg_dire_feature], axis=1)
         # if batch_norm:
         #     self.FM = self
         layer_1 = tf.layers.dense(inputs=self.FM, units=num_hidden,
@@ -227,7 +243,9 @@ class NFM_dire_add_MLP():
         np.random.set_state(rng_state)
         np.random.shuffle(train_data['X'])
         np.random.set_state(rng_state)
-        np.random.shuffle(add_train_feature['X'])
+        np.random.shuffle(add_train_feature['X1'])
+        np.random.set_state(rng_state)
+        np.random.shuffle(add_train_feature['X2'])
         np.random.set_state(rng_state)
         np.random.shuffle(add_train_feature['Y'])
         # train
@@ -236,9 +254,11 @@ class NFM_dire_add_MLP():
         for i in range(total_batch):
             batch_y = train_data['Y'][i * self.batch_size:(i + 1) * self.batch_size]
             batch_x = train_data['X'][i * self.batch_size:(i + 1) * self.batch_size]
-            batch_add_x = add_train_feature['X'][i * self.batch_size:(i + 1) * self.batch_size]
+            batch_add_x1 = add_train_feature['X1'][i * self.batch_size:(i + 1) * self.batch_size]
+            batch_add_x2 = add_train_feature['X2'][i * self.batch_size:(i + 1) * self.batch_size]
             loss, opt = self.sess.run((self.loss, self.optimizer), feed_dict={self.train_features: batch_x,
-                                                                              self.train_features_add:batch_add_x,
+                                                                              self.dire_pos_indices:batch_add_x1,
+                                                                              self.dire_neg_indices: batch_add_x2,
                                                                               self.y: batch_y,
                                                                               self.dropout_keep:0.8})
             loss_list.append(loss)
@@ -255,7 +275,7 @@ class NFM_dire_add_MLP():
         #     error += (float(test_data.get((u, i))) - pred_rating_test) ** 2
         #     error_mae += (np.abs(float(test_data.get((u, i))) - pred_rating_test))
         num_example = len(test_data['Y'])
-        feed_dict = {self.train_features: test_data['X'], self.train_features_add:add_test_feature['X'] ,self.y: test_data['Y'],self.dropout_keep: 1.0}
+        feed_dict = {self.train_features: test_data['X'], self.dire_pos_indices:add_test_feature['X1'],  self.dire_neg_indices: add_test_feature['X2'],self.y: test_data['Y'],self.dropout_keep: 1.0}
         predictions = self.sess.run((self.pred_rating), feed_dict=feed_dict)
         y_pred = np.reshape(predictions, (num_example,))
         y_true = np.reshape(test_data['Y'], (num_example,))

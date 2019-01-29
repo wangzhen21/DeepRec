@@ -56,17 +56,20 @@ def load_added_feature(train_file,test_file,interval):
 
 def read_added_file(file, interval):
     f = open(file)
-    X = []
+    X1 = []
+    X2 = []
     Y = []
 
     line = f.readline()
     while line:
         elements = line.strip().split(interval)
-        Y.append([float(elements[0])])
-        X.append([int(elements[2]),int(elements[2])])
+        Y.append([float(elements[2])])
+        X1.append([int(elements[8])])
+        X2.append([int(elements[9])])
         line = f.readline()
     f.close()
     Data_Dict = {}
     Data_Dict['Y'] = Y
-    Data_Dict['X'] = X
+    Data_Dict['X1'] = X1
+    Data_Dict['X2'] = X2
     return Data_Dict
