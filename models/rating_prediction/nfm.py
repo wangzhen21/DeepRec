@@ -25,7 +25,7 @@ def outfile(file,outstr):
         f.write(outstr +"\n")
 class NFM():
 
-    def __init__(self, sess, num_user, num_item, learning_rate = 0.05, reg_rate = 0.01, epoch = 500, batch_size = 128, show_time = False, T =2, display_step= 1000):
+    def __init__(self, sess, num_user, num_item, learning_rate = 0.01, reg_rate = 0.01, epoch = 500, batch_size = 128, show_time = True, T =1, display_step= 1000):
         self.learning_rate = learning_rate
         self.epochs = epoch
         self.batch_size = batch_size
@@ -39,7 +39,7 @@ class NFM():
         print("NFM.")
 
 
-    def build_network(self, feature_M, num_factor = 128, num_hidden = 128):
+    def build_network(self, feature_M, num_factor = 64, num_hidden = 128):
 
         # model dependent arguments
         self.train_features = tf.placeholder(tf.int32, shape=[None, None])
@@ -99,18 +99,19 @@ class NFM():
         np.random.set_state(rng_state)
         np.random.shuffle(train_data['X'])
         # train
+        loss_list = []
+        start_time = time.time()
         for i in range(total_batch):
-            start_time = time.time()
             batch_y = train_data['Y'][i * self.batch_size:(i + 1) * self.batch_size]
             batch_x = train_data['X'][i * self.batch_size:(i + 1) * self.batch_size]
 
             loss, opt = self.sess.run((self.loss, self.optimizer), feed_dict={self.train_features: batch_x,
                                                                               self.y: batch_y,
                                                                               self.dropout_keep:0.8})
-            if i % self.display_step == 0:
-                print("Index: %04d; cost= %.9f" % (i + 1, np.mean(loss)))
-                if self.show_time:
-                    print("one iteration: %s seconds." % (time.time() - start_time))
+            loss_list.append(loss)
+        print("cost= %.9f" % (np.mean(np.array(loss_list))))
+        if self.show_time:
+            print(" %s seconds." % (time.time() - start_time))
 
     def test(self, test_data):
         # error = 0
@@ -121,7 +122,7 @@ class NFM():
         #     error += (float(test_data.get((u, i))) - pred_rating_test) ** 2
         #     error_mae += (np.abs(float(test_data.get((u, i))) - pred_rating_test))
         num_example = len(test_data['Y'])
-        feed_dict = {self.train_features: test_data['X'], self.y: test_data['Y'],self.dropout_keep: 1.0}
+        feed_dict = {self.train_features: test_data['X'], self.y: test_data['Y'],self.dropout_keep: 1}
         predictions = self.sess.run((self.pred_rating), feed_dict=feed_dict)
         y_pred = np.reshape(predictions, (num_example,))
         y_true = np.reshape(test_data['Y'], (num_example,))
@@ -147,6 +148,3 @@ class NFM():
     def save(self, path):
         saver = tf.train.Saver()
         saver.save(self.sess, path)
-
-    def predict(self, user_id, item_id):
-        return self.sess.run([self.pred_rating], feed_dict={self.user_id: user_id, self.item_id: item_id})[0]

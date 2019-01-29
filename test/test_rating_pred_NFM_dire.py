@@ -9,13 +9,13 @@ from models.rating_prediction.nnmf import NNMF
 from models.rating_prediction.mf import MF
 from models.rating_prediction.nrr import NRR
 from models.rating_prediction.autorec import *
-from models.rating_prediction.nfm_dire import NFM_dire
+from models.rating_prediction.nfm_dire import NFM_dire,NFM_dire_add_MLP
 from utils.load_data.load_data_rating import *
 from utils.load_data.load_data_content import *
 
 def parse_args():
     parser = argparse.ArgumentParser(description='nnRec')
-    parser.add_argument('--model', choices=['MF', 'NNMF', 'NRR', 'I-AutoRec', 'U-AutoRec', 'FM', 'NFM', 'AFM'], default='NFM')
+    parser.add_argument('--model', choices=['MF', 'NNMF', 'NRR', 'I-AutoRec', 'U-AutoRec', 'FM', 'NFM', 'AFM','NFM_MOD_MLP'], default='NFM')
     parser.add_argument('--epochs', type=int, default=1000)
     parser.add_argument('--num_factors', type=int, default=10)
     parser.add_argument('--display_step', type=int, default=1000)
@@ -58,12 +58,20 @@ if __name__ == '__main__':
         if args.model == "U-AutoRec":
             model = UAutoRec(sess, n_user, n_item)
         if args.model == "NFM":
-            train_data, test_data, feature_M = load_data_fm("../data/ml1m/train_1m_ratings.dat.nfm","../data/ml1m/test_1m_ratings.dat.nfm",'\t')
+            train_data, test_data, feature_M = load_data_fm("../data/ml1m_nfm/nfm_train_1m_ratings.dat","../data/ml1m_nfm/nfm_test_1m_ratings.dat",'\t')
             n_user = 6041
             n_item = 3953
             model = NFM_dire(sess, n_user, n_item)
             model.build_network(feature_M)
             model.execute(train_data, test_data)
+        if args.model == "NFM_MOD_MLP":
+            train_data, test_data, feature_M = load_data_fm("../data/ml1m/train_1m_ratings.dat.nfm.no.dire","../data/ml1m/test_1m_ratings.dat.nfm.no.dire",'\t')
+            add_train_feature,add_test_feature = load_added_feature("../data/ml1m/train_1m_ratings.dat","../data/ml1m/test_1m_ratings.dat",'\t')
+            n_user = 6041
+            n_item = 3953
+            model = NFM_dire_add_MLP(sess, n_user, n_item)
+            model.build_network(feature_M)
+            model.execute(train_data, test_data,add_train_feature,add_test_feature)
         # build and execute the model
         if model is not None:
             model.build_network()

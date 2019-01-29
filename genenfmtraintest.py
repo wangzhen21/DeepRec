@@ -3,6 +3,7 @@ import tqdm
 def outfile(file,outstring):
     with open(file, 'a+') as f:
             f.write(outstring + "\n")
+
 #1	2028	5	978301619	1	3	229	Steven Spielberg	2	0	545
 def gene(fullfile):
     if os.path.exists(fullfile + ".nfm"):

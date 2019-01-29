@@ -47,12 +47,26 @@ def read_data(file,interval):
     Data_Dict['X'] = X
     return Data_Dict
 
+def load_added_feature(train_file,test_file,interval):
 
+    train_data = read_added_file(train_file, interval)
+    test_data = read_added_file(test_file, interval)
 
+    return train_data, test_data
 
+def read_added_file(file, interval):
+    f = open(file)
+    X = []
+    Y = []
 
-
-
-
-
-
+    line = f.readline()
+    while line:
+        elements = line.strip().split(interval)
+        Y.append([float(elements[0])])
+        X.append([int(elements[2]),int(elements[2])])
+        line = f.readline()
+    f.close()
+    Data_Dict = {}
+    Data_Dict['Y'] = Y
+    Data_Dict['X'] = X
+    return Data_Dict
