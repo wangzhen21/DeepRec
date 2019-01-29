@@ -33,13 +33,11 @@ if __name__ == '__main__':
     num_factors = args.num_factors
     display_step = args.display_step
     batch_size = args.batch_size
-
-    #train_data, test_data, n_user, n_item = load_data_rating(path="../Data/ml100k/movielens_100k.dat",
-    train_data, test_data, n_user, n_item = load_data_rating(path="../data/ml1m/ratings_t.dat",
-    #train_data, test_data, n_user, n_item = load_data_rating(path="../Data/ml1m/ratings_date_dire_t.dat",
-                                                             header=['user_id', 'item_id', 'rating', 't'],
-                                                             test_size=0.1, sep="\t")
-
+    if not args.model.find("NFM"):
+        #train_data, test_data, n_user, n_item = load_data_rating(path="../Data/ml100k/movielens_100k.dat",
+        train_data, test_data, n_user, n_item = load_data_rating(path="../data/ml1m/ratings_t.dat",
+                                                                 header=['user_id', 'item_id', 'rating', 't'],
+                                                                 test_size=0.1, sep="\t")
 
     config = tf.ConfigProto()
     config.gpu_options.allow_growth = True
@@ -58,7 +56,7 @@ if __name__ == '__main__':
         if args.model == "U-AutoRec":
             model = UAutoRec(sess, n_user, n_item)
         if args.model == "NFM":
-            train_data, test_data, feature_M = load_data_fm("../data/ml1m_nfm/nfm_train_1m_ratings.dat","../data/ml1m_nfm/nfm_test_1m_ratings.dat",'\t')
+            train_data, test_data, feature_M = load_data_fm("../data/ml1m_nfm/nfm_train_1m_ratings.dat.test","../data/ml1m_nfm/nfm_test_1m_ratings.dat.test",'\t')
             n_user = 6041
             n_item = 3953
             model = NFM_dire(sess, n_user, n_item)
