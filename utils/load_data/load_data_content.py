@@ -65,7 +65,7 @@ def read_added_file(file, interval):
         elements = line.strip().split(interval)
         Y.append([float(elements[2])])
         X1.append([int(elements[8])])
-        X2.append([int(elements[9])])
+        X2.append([int(elements[8])])
         line = f.readline()
     f.close()
     Data_Dict = {}
