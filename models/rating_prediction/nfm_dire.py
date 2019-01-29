@@ -174,15 +174,15 @@ class NFM_dire_add_MLP():
         ############################
         self.dire_pos_indices = tf.placeholder(tf.int32, shape=[None,1])
         self.dire_neg_indices = tf.placeholder(tf.int32, shape=[None,1])
-        emb_dire_pos = tf.Variable(tf.truncated_normal([self.dire_num, added_factor/2],
+        self.emb_dire_pos = tf.Variable(tf.truncated_normal([self.dire_num, added_factor/2],
                                                        stddev=0.1 / math.sqrt(float(added_factor)), mean=0),
                                    name='emb_dire_pos', dtype=tf.float32)
-        emb_dire_neg = tf.Variable(tf.truncated_normal([self.dire_num, added_factor/2],
+        self.emb_dire_neg = tf.Variable(tf.truncated_normal([self.dire_num, added_factor/2],
                                                        stddev=init_value / math.sqrt(float(added_factor)), mean=0),
                                    name='emb_dire_neg', dtype=tf.float32)
 
-        self.pos_dire_feature = tf.nn.embedding_lookup(emb_dire_pos, self.dire_pos_indices, name='dire_pos_feature')
-        self.neg_dire_feature = tf.nn.embedding_lookup(emb_dire_neg, self.dire_neg_indices, name='dire_neg_feature')
+        self.pos_dire_feature = tf.nn.embedding_lookup(self.emb_dire_pos, self.dire_pos_indices, name='dire_pos_feature')
+        self.neg_dire_feature = tf.nn.embedding_lookup(self.emb_dire_neg, self.dire_neg_indices, name='dire_neg_feature')
         #############################
         self.y = tf.placeholder(tf.float32, shape=[None, 1])
         self.dropout_keep = tf.placeholder(tf.float32)
@@ -285,6 +285,8 @@ class NFM_dire_add_MLP():
         RMSE = math.sqrt(mean_squared_error(y_true, predictions_bounded))
 
         print("RMSE:" + str(RMSE))
+        #print(self.pos_dire_feature.eval())
+        #print(self.neg_dire_feature.eval())
         outfile("../log/NeuMF_addMLP_dire.log", self.starttime + "\t" + "RMSE\t" + str(RMSE))
     def execute(self, train_data, test_data,add_train_feature,add_test_feature):
         self.starttime = str(datetime.datetime.now())
