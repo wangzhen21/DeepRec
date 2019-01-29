@@ -25,7 +25,7 @@ def outfile(file,outstr):
         f.write(outstr +"\n")
 class NFM():
 
-    def __init__(self, sess, num_user, num_item, learning_rate = 0.01, reg_rate = 0.01, epoch = 500, batch_size = 128, show_time = True, T =1, display_step= 1000):
+    def __init__(self, sess, num_user, num_item, learning_rate = 0.01, reg_rate = 0.01, epoch = 25, batch_size = 128, show_time = True, T =1, display_step= 1000):
         self.learning_rate = learning_rate
         self.epochs = epoch
         self.batch_size = batch_size
